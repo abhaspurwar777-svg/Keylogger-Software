@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThreatAnalyze EDR Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-shield-virus brand-icon"></i>
+                <div class="brand-text">
+                    <h1>Threat<span class="highlight">Analyze</span></h1>
+                    <span class="version">EDR ENGINE v3.1</span>
+                </div>
+            </div>
+            <nav class="side-nav">
+                <a href="#" class="nav-item active" id="nav-dashboard">
+                    <i class="fa-solid fa-chart-line"></i> Operations Center
+                </a>
+                <a href="#" class="nav-item" id="nav-education">
+                    <i class="fa-solid fa-book-skull"></i> Threat Intel
+                </a>
+                <a href="#" class="nav-item" id="nav-settings">
+                    <i class="fa-solid fa-sliders"></i> Heuristics
+                </a>
+            </nav>
+            <div class="system-status-panel">
+                <div class="status-dot"></div>
+                <div class="status-info">
+                    <span class="status-label">Engine Status</span>
+                    <span class="status-value">ONLINE & SECURE</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content-area">
+            <!-- Header -->
+            <header class="top-bar">
+                <div class="page-title">
+                    <h2 id="page-header-title">Operations Center</h2>
+                    <p class="subtitle" id="page-header-sub">Real-time endpoint detection and response telemetry.</p>
+                </div>
+                <div class="header-actions">
+                    <button id="scan-btn" class="cyber-btn primary">
+                        <i class="fa-solid fa-radar" id="scan-icon"></i> <span class="btn-text">INITIALIZE SCAN</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard View -->
+            <section id="view-dashboard" class="view-section active">
+                <div class="stats-grid hidden" id="scan-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fa-solid fa-microchip"></i></div>
+                        <div class="stat-data">
+                            <h3>Processes Analyzed</h3>
+                            <div class="stat-value" id="stat-total">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card alert">
+                        <div class="stat-icon"><i class="fa-solid fa-biohazard"></i></div>
+                        <div class="stat-data">
+                            <h3>Active Threats</h3>
+                            <div class="stat-value text-red" id="stat-threats">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                        <div class="stat-data">
+                            <h3>Protection Level</h3>
+                            <div class="stat-value text-green">MAXIMUM</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="main-grid">
+                    <div class="panel table-panel">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-list-check"></i> Process Telemetry</h3>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="cyber-table">
+                                <thead>
+                                    <tr>
+                                        <th>PID</th>
+                                        <th>Process Image</th>
+                                        <th>Executable Path</th>
+                                        <th>Integrity</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="process-table-body">
+                                    <tr>
+                                        <td colspan="5" class="empty-state">System idle. Awaiting scan initialization...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Terminal Log Panel -->
+                    <div class="panel log-panel">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-terminal"></i> Activity Log</h3>
+                        </div>
+                        <div class="terminal-window" id="terminal-log">
+                            <div class="log-line sys-msg">[SYS] EDR Engine initialized and ready.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Threat Intel View -->
+            <section id="view-education" class="view-section hidden">
+                <div class="panel">
+                    <h2><i class="fa-solid fa-book-skull" style="color:var(--accent)"></i> Keylogger Threat Intelligence</h2>
+                    <p style="color:var(--text-muted); margin-bottom: 2rem;">Modern input monitoring tools utilize advanced kernel and user-land techniques to evade detection. Understanding their behavior is critical for defense.</p>
+                    <div class="intel-grid">
+                        <div class="intel-card">
+                            <i class="fa-solid fa-link card-icon"></i>
+                            <h3>API Hooking (User Mode)</h3>
+                            <p>Injects DLLs into active processes and leverages <code>SetWindowsHookEx</code> to intercept hardware interrupts before they reach the target application.</p>
+                        </div>
+                        <div class="intel-card">
+                            <i class="fa-solid fa-layer-group card-icon"></i>
+                            <h3>Driver Level (Kernel Mode)</h3>
+                            <p>Operates at Ring 0, capturing raw signals directly from the keyboard controller, bypassing nearly all user-mode security software.</p>
+                        </div>
+                        <div class="intel-card">
+                            <i class="fa-solid fa-shield-virus card-icon" style="color:var(--success)"></i>
+                            <h3>Defensive Countermeasures</h3>
+                            <p>Utilizes advanced heuristics, behavior monitoring, process isolation, and memory scans for detecting unauthorized global hooks.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings View -->
+            <section id="view-settings" class="view-section hidden">
+                <div class="panel">
+                    <h2><i class="fa-solid fa-sliders" style="color:var(--accent)"></i> Heuristic Configuration</h2>
+                    <p style="color:var(--text-muted); margin-bottom: 2rem;">Tune the sensitivity of the ThreatAnalyze engine.</p>
+                    <div class="settings-form">
+                        <div class="toggle-row">
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <div class="toggle-info">
+                                <h4>Deep Memory Scanning</h4>
+                                <p>Analyze memory pages for injected hook signatures.</p>
+                            </div>
+                        </div>
+                        <div class="toggle-row">
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <div class="toggle-info">
+                                <h4>Behavioral Heuristics</h4>
+                                <p>Flag processes attempting suspicious API calls dynamically.</p>
+                            </div>
+                        </div>
+                        <div class="toggle-row">
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                            <div class="toggle-info">
+                                <h4>Strict Execution Blocking</h4>
+                                <p>Automatically terminate any process failing heuristic checks.</p>
+                            </div>
+                        </div>
+                        <button class="cyber-btn primary" style="margin-top:20px;" onclick="window.logTerminal('Configuration saved and applied to engine.', 'ok'); alert('Settings saved successfully.')">Apply Security Profile</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Threat Modal -->
+    <div id="threat-modal" class="modal hidden">
+        <div class="modal-glass"></div>
+        <div class="cyber-modal">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-triangle-exclamation"></i> THREAT DETECTED</h2>
+                <button class="icon-btn close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-content">
+                <div class="threat-details">
+                    <div class="detail-row"><span>Process Name:</span> <strong id="modal-process-name"></strong></div>
+                    <div class="detail-row"><span>Process ID:</span> <span id="modal-pid" class="text-mono"></span></div>
+                    <div class="detail-row"><span>Image Path:</span> <span id="modal-path" class="path-text"></span></div>
+                    <div class="detail-row alert-row"><span>Risk Analysis:</span> <span id="modal-reason"></span></div>
+                </div>
+                <div class="modal-actions">
+                    <button class="cyber-btn secondary" id="modal-ignore">IGNORE</button>
+                    <button class="cyber-btn danger" id="modal-terminate"><i class="fa-solid fa-skull"></i> TERMINATE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Radar Overlay -->
+    <div id="radar-overlay" class="hidden">
+        <div class="radar-scanner"></div>
+        <div class="radar-text">SCANNING SYSTEM MEMORY...</div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
