@@ -229,6 +229,23 @@ body {
 
 .hidden { display: none !important; }
 
+/* Telemetry Grid */
+.telemetry-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+.chart-panel {
+    height: 250px;
+}
+.chart-container {
+    padding: 1rem;
+    position: relative;
+    height: calc(100% - 50px);
+    width: 100%;
+}
+
 /* Dashboard Grids */
 .stats-grid {
     display: grid;

@@ -14,9 +14,7 @@ FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../front
 def serve_index():
     return send_from_directory(FRONTEND_DIR, 'index.html')
 
-@app.route('/<path:path>')
-def serve_static(path):
-    return send_from_directory(FRONTEND_DIR, path)
+
 
 @app.route('/api/scan', methods=['GET'])
 def run_scan():
@@ -36,6 +34,16 @@ def run_scan():
             "message": str(e)
         }), 500
 
+@app.route('/api/telemetry', methods=['GET'])
+def get_telemetry():
+    """
+    API endpoint returning global system CPU and RAM usage.
+    """
+    return jsonify({
+        "cpu": psutil.cpu_percent(interval=None),
+        "ram": psutil.virtual_memory().percent
+    })
+
 @app.route('/api/terminate/<int:pid>', methods=['POST'])
 def terminate_process(pid):
     """
@@ -53,6 +61,11 @@ def terminate_process(pid):
         return jsonify({"status": "error", "message": "Access Denied. Administrator privileges are required to terminate this system process."}), 403
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/<path:path>')
+def serve_static(path):
+    # This must be at the bottom to act as a catch-all for frontend assets
+    return send_from_directory(FRONTEND_DIR, path)
 
 if __name__ == "__main__":
     print(f"Starting Threat Analyzer backend... Serving frontend from {FRONTEND_DIR}")

@@ -3,7 +3,11 @@ import psutil
 # A mock list of "suspicious" process names/patterns that might indicate a keylogger or monitoring tool.
 # In a real AV, this would be a large database of signatures and heuristics.
 SUSPICIOUS_INDICATORS = [
-    "keylog", "monitor", "hook", "capture", "stealth", "pynput_demo"
+    "keylog", "monitor", "hook", "capture", "stealth", "pynput_demo", "mock_threat"
+]
+
+SUSPICIOUS_PATHS = [
+    "appdata\\local\\temp", "downloads", "public"
 ]
 
 def scan_processes():
@@ -26,17 +30,37 @@ def scan_processes():
             # Simple mock heuristic: check if process name contains suspicious keywords
             is_suspicious = any(indicator in name.lower() for indicator in SUSPICIOUS_INDICATORS)
             
-            # Additional dummy check for educational purposes:
-            # We flag python.exe sometimes if we pretend it's running a suspicious script, 
-            # but we'll stick to name matching for simplicity.
+            # Check for suspicious execution paths
+            exe_path = info.get('exe') or ""
+            if exe_path and any(sp in exe_path.lower() for sp in SUSPICIOUS_PATHS):
+                is_suspicious = True
+                reason_msg = "Running from anomalous/temp directory"
+            elif is_suspicious:
+                reason_msg = "Matched heuristic keyword signature"
+            else:
+                reason_msg = ""
+                
+            # Advanced Heuristic: Network connection combined with suspicious traits
+            has_network = False
+            try:
+                # Some processes may block connection info queries
+                conns = proc.connections(kind='inet')
+                if len(conns) > 0:
+                    has_network = True
+            except (psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+                
+            if is_suspicious and has_network:
+                reason_msg += " + Active network exfiltration socket"
             
             proc_data = {
                 "pid": info.get('pid'),
                 "name": name,
-                "exe": info.get('exe') or "Unknown",
+                "exe": exe_path or "Unknown",
                 "username": info.get('username') or "Unknown",
                 "is_suspicious": is_suspicious,
-                "reason": "Matched heuristic keyword" if is_suspicious else ""
+                "has_network": has_network,
+                "reason": reason_msg
             }
             
             scanned_results["processes"].append(proc_data)

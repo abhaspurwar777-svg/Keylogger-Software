@@ -30,6 +30,52 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById(`nav-${n}`).addEventListener('click', () => switchView(n));
     });
 
+    // Chart.js Telemetry Initialization
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 0 },
+        scales: {
+            x: { display: false },
+            y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#828fa3' } }
+        },
+        plugins: { legend: { display: false } },
+        elements: { point: { radius: 0 } }
+    };
+
+    const ctxCpu = document.getElementById('cpuChart').getContext('2d');
+    const cpuChart = new Chart(ctxCpu, {
+        type: 'line',
+        data: { labels: Array(20).fill(''), datasets: [{ data: Array(20).fill(0), borderColor: '#00e5ff', backgroundColor: 'rgba(0, 229, 255, 0.1)', fill: true, tension: 0.4, borderWidth: 2 }] },
+        options: chartOptions
+    });
+
+    const ctxRam = document.getElementById('ramChart').getContext('2d');
+    const ramChart = new Chart(ctxRam, {
+        type: 'line',
+        data: { labels: Array(20).fill(''), datasets: [{ data: Array(20).fill(0), borderColor: '#00ff88', backgroundColor: 'rgba(0, 255, 136, 0.1)', fill: true, tension: 0.4, borderWidth: 2 }] },
+        options: chartOptions
+    });
+
+    // Telemetry Polling
+    setInterval(async () => {
+        if (!document.getElementById('view-dashboard').classList.contains('active')) return;
+        try {
+            const res = await fetch('/api/telemetry');
+            const data = await res.json();
+            
+            // Update CPU
+            cpuChart.data.datasets[0].data.push(data.cpu);
+            cpuChart.data.datasets[0].data.shift();
+            cpuChart.update();
+
+            // Update RAM
+            ramChart.data.datasets[0].data.push(data.ram);
+            ramChart.data.datasets[0].data.shift();
+            ramChart.update();
+        } catch (e) {}
+    }, 2000);
+
     // Terminal Logging Logic
     const terminalLog = document.getElementById('terminal-log');
     
@@ -43,7 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Scan Logic
+    let lastScanData = null;
     const scanBtn = document.getElementById('scan-btn');
+    const exportBtn = document.getElementById('export-btn');
     const scanIcon = document.getElementById('scan-icon');
     const btnText = scanBtn.querySelector('.btn-text');
     const tableBody = document.getElementById('process-table-body');
@@ -67,6 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.status === 'success') {
+                lastScanData = result.data;
+                exportBtn.classList.remove('hidden');
                 logTerminal(`Analysis complete. Interrogated ${result.data.total_processes} process images.`, 'ok');
                 if(result.data.suspicious_found > 0) {
                     logTerminal(`CRITICAL: Identified ${result.data.suspicious_found} potential monitoring threats!`, 'err');
@@ -86,6 +136,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 scanIcon.classList.remove('fa-spin');
             }, 500);
         }
+    });
+
+    // Export Logic
+    exportBtn.addEventListener('click', () => {
+        if (!lastScanData) return;
+        const report = {
+            generated_at: new Date().toISOString(),
+            engine_version: "3.1",
+            telemetry: lastScanData
+        };
+        const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ThreatAnalyze_IR_Report_${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        logTerminal("Security Scan Report exported successfully.", "sys");
     });
 
     function renderProcesses(data) {

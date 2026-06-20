@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="app-layout">
@@ -47,7 +48,10 @@
                     <h2 id="page-header-title">Operations Center</h2>
                     <p class="subtitle" id="page-header-sub">Real-time endpoint detection and response telemetry.</p>
                 </div>
-                <div class="header-actions">
+                <div class="header-actions" style="display:flex; gap:15px;">
+                    <button id="export-btn" class="cyber-btn secondary hidden">
+                        <i class="fa-solid fa-file-export"></i> <span class="btn-text">EXPORT REPORT</span>
+                    </button>
                     <button id="scan-btn" class="cyber-btn primary">
                         <i class="fa-solid fa-radar" id="scan-icon"></i> <span class="btn-text">INITIALIZE SCAN</span>
                     </button>
@@ -56,6 +60,27 @@
 
             <!-- Dashboard View -->
             <section id="view-dashboard" class="view-section active">
+                
+                <!-- Telemetry Section -->
+                <div class="telemetry-grid">
+                    <div class="panel chart-panel">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-microchip"></i> Live CPU Telemetry</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="cpuChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="panel chart-panel">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-memory"></i> Memory Allocation</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="ramChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="stats-grid hidden" id="scan-stats">
                     <div class="stat-card">
                         <div class="stat-icon"><i class="fa-solid fa-microchip"></i></div>
