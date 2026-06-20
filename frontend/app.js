@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logTerminal('Connecting to EDR API gateway...', 'sys');
 
         try {
-            const response = await fetch('http://localhost:5001/api/scan');
+            const response = await fetch('/api/scan');
             const result = await response.json();
 
             if (result.status === 'success') {
@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logTerminal(`Executing termination sequence for PID: ${pid}...`, 'warn');
 
         try {
-            const response = await fetch(`http://localhost:5001/api/terminate/${pid}`, { method: 'POST' });
+            const response = await fetch(`/api/terminate/${pid}`, { method: 'POST' });
             const result = await response.json();
             
             if (result.status === 'success') {
