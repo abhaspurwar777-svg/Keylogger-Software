@@ -21,7 +21,7 @@ def scan_processes():
         "processes": []
     }
     
-    for proc in psutil.process_iter(['pid', 'name', 'exe', 'username']):
+    for proc in psutil.process_iter(['pid', 'name', 'exe', 'username', 'cmdline']):
         try:
             scanned_results["total_processes"] += 1
             info = proc.info
@@ -30,13 +30,23 @@ def scan_processes():
             # Simple mock heuristic: check if process name contains suspicious keywords
             is_suspicious = any(indicator in name.lower() for indicator in SUSPICIOUS_INDICATORS)
             
+            # Heuristic extension: check process command line arguments (important for scripts/interpreters)
+            cmdline = info.get('cmdline') or []
+            # Filter cmdline to only look at non-flag arguments (ignoring switches starting with '-' or '/')
+            clean_args = [arg.lower() for arg in cmdline if arg and not (arg.startswith('-') or arg.startswith('/'))]
+            # Exclude the executable runner itself (first clean argument) to check target script/file args
+            if clean_args and len(clean_args) > 1:
+                args_to_check = clean_args[1:]
+                if any(any(indicator in arg for indicator in SUSPICIOUS_INDICATORS) for arg in args_to_check):
+                    is_suspicious = True
+            
             # Check for suspicious execution paths
             exe_path = info.get('exe') or ""
             if exe_path and any(sp in exe_path.lower() for sp in SUSPICIOUS_PATHS):
                 is_suspicious = True
                 reason_msg = "Running from anomalous/temp directory"
             elif is_suspicious:
-                reason_msg = "Matched heuristic keyword signature"
+                reason_msg = "Matched heuristic keyword/command line signature"
             else:
                 reason_msg = ""
                 
@@ -44,7 +54,7 @@ def scan_processes():
             has_network = False
             try:
                 # Some processes may block connection info queries
-                conns = proc.connections(kind='inet')
+                conns = proc.net_connections(kind='inet')
                 if len(conns) > 0:
                     has_network = True
             except (psutil.AccessDenied, psutil.ZombieProcess):

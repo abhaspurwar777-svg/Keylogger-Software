@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Auto-detect API Base for local development vs production deployment
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') && window.location.port !== '5001'
+        ? 'http://localhost:5001'
+        : '';
+
     // Navigation Logic
     const navs = ['dashboard', 'education', 'settings'];
     
@@ -61,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(async () => {
         if (!document.getElementById('view-dashboard').classList.contains('active')) return;
         try {
-            const res = await fetch('/api/telemetry');
+            const res = await fetch(`${API_BASE}/api/telemetry`);
             const data = await res.json();
             
             // Update CPU
@@ -111,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logTerminal('Connecting to EDR API gateway...', 'sys');
 
         try {
-            const response = await fetch('/api/scan');
+            const response = await fetch(`${API_BASE}/api/scan`);
             const result = await response.json();
 
             if (result.status === 'success') {
@@ -173,8 +178,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const badgeClass = proc.is_suspicious ? 'badge-alert' : 'badge-clean';
             const statusText = proc.is_suspicious ? 'SUSPICIOUS' : 'VERIFIED';
+            const safeName = proc.name.replace(/'/g, "\\'");
+            const safeExe = proc.exe.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            const safeReason = proc.reason.replace(/'/g, "\\'");
             const actionHTML = proc.is_suspicious 
-                ? `<span class="action-link" onclick="openThreatModal(${proc.pid}, '${proc.name}', '${proc.exe.replace(/\\/g, '\\\\')}', '${proc.reason}')">INVESTIGATE</span>` 
+                ? `<span class="action-link" onclick="openThreatModal(${proc.pid}, '${safeName}', '${safeExe}', '${safeReason}')">INVESTIGATE</span>` 
                 : `<span style="color: var(--text-muted)">-</span>`;
 
             tr.innerHTML = `
@@ -242,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logTerminal(`Executing termination sequence for PID: ${pid}...`, 'warn');
 
         try {
-            const response = await fetch(`/api/terminate/${pid}`, { method: 'POST' });
+            const response = await fetch(`${API_BASE}/api/terminate/${pid}`, { method: 'POST' });
             const result = await response.json();
             
             if (result.status === 'success') {
